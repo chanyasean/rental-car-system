@@ -20,7 +20,7 @@ exports.getHospitals= async (req,res,next) => {
         //Create Query String
         let queryStr=JSON.stringify(reqQuery);
         queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
-        query=Hospital.find(JSON.parse(queryStr));
+        query=Hospital.find(JSON.parse(queryStr)).populate('appointments');
 
         //Select Fields
         if(req.query.select)
