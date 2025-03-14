@@ -2,6 +2,7 @@
 // Route : GET /api/v1/hospitals
 
 const Hospital = require("../models/Hospital");
+const Appointment = require('../models/Appointment.js');
 
 // Access : Public
 exports.getHospitals= async (req,res,next) => {
@@ -125,11 +126,15 @@ exports.updateHospital= async (req,res,next) => {
 // Access : Private
 exports.deleteHospital= async (req,res,next) => {
     try{
-        const hospital = await Hospital.findByIdAndDelete(req.params.id);
+        const hospital = await Hospital.findById(req.params.id);
 
         if(!hospital){
             return res.status(400).json({success:false});
         }
+
+        await Appointment.deleteMany ({hospital: req.params.id});
+        await Hospital.deleteOne({_id: req.params.id});
+
         res.status(200).json({success:true,data:{}});
     }
     catch(err) {

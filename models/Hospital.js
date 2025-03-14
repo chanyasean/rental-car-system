@@ -34,8 +34,8 @@ const HospitalSchema = new mongoose.Schema({
     }
 },
 {
-    HospitalSchematoJson: {virtuals: true},
-    HospitalSchematoObject: {virtuals: true}
+    toJSON: {virtuals: true},
+    toObject: {virtuals: true}
 });
 
 //Reverse populate with virtuals
