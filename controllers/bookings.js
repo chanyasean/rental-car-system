@@ -2,6 +2,8 @@ const Booking = require('../models/Booking');
 
 const Car = require('../models/Car');
 
+const generateInvoice = require('../utils/generateInvoice');
+
 //@desc Get all bookings
 //@route GET /api/v1/bookings
 //@access Private (User/Admin)
@@ -103,6 +105,12 @@ exports.createBooking = async (req,res,next)=>
         }
 
         const booking = await Booking.create(req.body);
+
+        // Populate user for the invoice
+        const user = req.user;
+
+        // Generate PDF invoice
+        generateInvoice(booking, car, user);
         
         res.status(201).json(
             {
