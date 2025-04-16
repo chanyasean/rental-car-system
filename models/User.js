@@ -7,6 +7,12 @@ const UserSchema=new mongoose.Schema({
         type:String,
         required:[true, 'Please add a name']
     },
+    telephone: {
+        type: String,
+        minlength:10,
+        required: [true, 'Please add a telephone number'],
+        match: [/^0\d{9}$/, 'Please add a valid telephone number (e.g., 0812345678)']
+    },
     email:{
         type:String,
         required:[true, 'Please add an email'],

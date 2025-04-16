@@ -1,1 +1,18 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/JTCvLSb7)
+# Rental Car Booking System
+
+A simple car booking system where users can register, log in, and book rental cars from different providers.
+
+## Features
+
+- **User Authentication**: Register and log in using email and password.
+- **Booking System**: Book up to 3 rental cars with a preferred rental car provider.
+- **Admin**: Admin users can manage all bookings.
+- **User Management**: Users can view, edit, and delete their bookings.
+
+## Technologies Used
+
+- Node.js
+- Express.js
+- MongoDB
+- JWT Authentication
+- bcryptjs

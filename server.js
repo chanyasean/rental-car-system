@@ -20,8 +20,8 @@ connectDB();
 const app = express();
 
 // Route files
-const hospitals = require ('./routes/hospitals');
-const appointments = require('./routes/appointments');
+const cars = require ('./routes/cars');
+const bookings = require('./routes/bookings');
 const auth = require('./routes/auth');
 
 //Body Parser
@@ -39,8 +39,8 @@ const limiter = rateLimit.rateLimit(
 app.use(limiter);
 app.use(hpp()); //Prevent http param pollutions
 app.use(cors()); // Enable CORS
-app.use('/api/v1/hospitals',hospitals);
-app.use('/api/v1/appointments',appointments);
+app.use('/api/v1/cars',cars);
+app.use('/api/v1/bookings',bookings);
 app.use('/api/v1/auth',auth);
 
 //Cookie Parser
@@ -63,7 +63,7 @@ const swaggerOptions = {
         {
             title: 'Library API',
             version: '1.0.0',
-            description: 'A simple Express VacQ API'
+            description: 'A simple Express Car Renting API'
         },
         servers: [
             {
