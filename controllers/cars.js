@@ -3,6 +3,7 @@
 
 const Car = require("../models/Car");
 const Booking = require('../models/Booking.js');
+const AuditLog = require('../models/AuditLog');
 
 // Access : Public
 exports.getCars= async (req,res,next) => {
@@ -116,6 +117,11 @@ exports.getCar = async (req,res,next) => {
 exports.createCar = async (req, res, next) => {
     try {
       const car = await Car.create(req.body);
+      await AuditLog.create({
+        actionType: 'CREATE_CAR',
+        adminId: req.user.id,
+        details: { carId: req.params.id }
+      });
       res.status(201).json({ success: true, data: car });
     } catch (err) {
       res.status(400).json({ success: false, msg: 'Invalid input' });
@@ -135,6 +141,11 @@ exports.updateCar = async (req,res,next) => {
         if(!car){
             return res.status(404).json({success:false, msg: 'Car not found'});
         }
+        await AuditLog.create({
+            actionType: 'UPDATE_CAR',
+            adminId: req.user.id,
+            details: { carId: req.params.id }
+          });
         res.status(200).json({success:true,data:car});
     }
     catch(err) {
@@ -155,6 +166,11 @@ exports.deleteCar = async (req,res,next) => {
 
         await Booking.deleteMany ({car: req.params.id});
         await Car.deleteOne({_id: req.params.id});
+        await AuditLog.create({
+            actionType: 'DELETE_CAR',
+            adminId: req.user.id,
+            details: { carId: req.params.id }
+          });
 
         res.status(200).json({success:true,data:{}});
     }
