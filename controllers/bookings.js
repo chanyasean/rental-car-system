@@ -4,6 +4,8 @@ const Car = require('../models/Car');
 
 const generateInvoice = require('../utils/generateInvoice');
 
+const AuditLog = require('../models/AuditLog');
+
 //@desc Get all bookings
 //@route GET /api/v1/bookings
 //@access Private (User/Admin)
@@ -111,6 +113,15 @@ exports.createBooking = async (req,res,next)=>
 
         // Generate PDF invoice
         generateInvoice(booking, car, user);
+
+        if(req.user.role === 'admin')
+            {
+                await AuditLog.create({
+                    actionType: 'CREATE_BOOKING',
+                    adminId: req.user.id,
+                    details: { carId: req.params.id }
+                });
+            }
         
         res.status(201).json(
             {
@@ -151,6 +162,15 @@ exports.updateBooking = async (req,res,next)=>
             }
         );
 
+        if(req.user.role === 'admin')
+        {
+            await AuditLog.create({
+                actionType: 'UPDATE_BOOKING',
+                adminId: req.user.id,
+                details: { carId: req.params.id }
+            });
+        }
+
         res.status(200).json({
             success: true,
             data: booking
@@ -185,6 +205,15 @@ exports.deleteBooking = async (req,res,next)=>
             }
 
             await booking.deleteOne();
+
+            if(req.user.role === 'admin')
+                {
+                    await AuditLog.create({
+                        actionType: 'DELETE_BOOKING',
+                        adminId: req.user.id,
+                        details: { carId: req.params.id }
+                    });
+                }
 
             res.status(200).json({
                 success: true,
