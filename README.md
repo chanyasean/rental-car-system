@@ -16,3 +16,10 @@ A simple car booking system where users can register, log in, and book rental ca
 - MongoDB
 - JWT Authentication
 - bcryptjs
+
+## Environment Setup
+- Set the following variables :
+  MONGO_URI=your_mongo_connection_string
+  SMTP_EMAIL=your_email@gmail.com
+  SMTP_PASSWORD=your_email_password
+
