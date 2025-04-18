@@ -38,12 +38,24 @@ exports.getCars= async (req,res,next) => {
         //Create Query String
         let queryStr=JSON.stringify(reqQuery);
         queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
-        query=Car.find(JSON.parse(queryStr)).populate('bookings');
+        query=Car.find(JSON.parse(queryStr));
+
+        if (req.user && req.user.role === 'admin') {
+            query = query.populate('bookings');
+        }
 
         //Select Fields
         if(req.query.select)
         {
             const fields = req.query.select.split(',').join(' ');
+            console.log(fields)
+            if (fields.includes('booking') && req.user.role !== 'admin')
+            {
+                return res.status(403).json({
+                    success: false,
+                    msg: 'You are not authorized to access bookings'
+                });
+            }
             query = query.select(fields);
         }
 
