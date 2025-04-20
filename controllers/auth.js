@@ -1,4 +1,7 @@
 const User = require('../models/User');
+const sendEmail = require('../utils/sendEmail');
+const speakeasy = require('speakeasy');
+const bcrypt=require('bcryptjs');
 
 //@desc Regiter User
 //@route POST /api/v1/auth/register
@@ -9,19 +12,25 @@ exports.register = async(req,res,next)=>
     try
     {
         const {name, telephone, email, password, role} = req.body;
+        
+        //Generate password with salt
+        const salt=await bcrypt.genSalt(10);
+        const newpassword=await bcrypt.hash(password,salt);
+
         //Create user
         const user = await User.create({
          name,
          telephone,
          email,
-         password,
+         password: newpassword,
          role
         });
 
         //Create token
         //const token = user.getSignedJwtToken();
         //res.status(200).json({success:true,token});
-        sendTokenResponse(user,200,res);
+        //sendTokenResponse(user,200,res);
+        res.status(200).json({success:true});
     }
     catch(err)
     {
@@ -37,7 +46,7 @@ exports.login = async (req,res,next) =>
 {
     try
     {
-        const {email, password} = req.body;
+        const {email, password, otp} = req.body;
 
         //Validate email & pasword
         if(!email || !password) {
@@ -55,6 +64,41 @@ exports.login = async (req,res,next) =>
         if(!isMatch) {
             return res.status(401).json({success:false, msg:'Invalid credentials'});
         }
+
+          // If user has 2FA enabled
+        if (user.twoFactorEnabled) {
+            // If OTP not yet provided, send it via email
+            if (!otp) {
+                const temp_secret = speakeasy.generateSecret({ length: 6 });
+                const token = speakeasy.totp({ secret: temp_secret.base32, encoding: 'base32' });
+
+                user.twoFactorTempSecret = temp_secret.base32;
+                user.twoFactorOTPExpires = Date.now() + 5 * 60 * 1000; // 5 mins
+                await user.save();
+
+                await sendEmail({
+                    email: user.email,
+                    subject: 'Your OTP Code',
+                    message: `Your one-time login code is: ${token}`
+                });
+
+                return res.status(200).json({
+                success: true, msg: 'OTP sent to your email. Please provide it to complete login.'
+                });
+            }
+            // If OTP provided, validate it
+            const isValid = speakeasy.totp.verify({
+                secret: user.twoFactorTempSecret,
+                encoding: 'base32',
+                token: otp,
+                window: 1
+            });
+  
+            if (!isValid || Date.now() > user.twoFactorOTPExpires) {
+                return res.status(401).json({ success: false, msg: 'Invalid or expired OTP' });
+            }
+        }
+
         //Create token
         //const token = user.getSignedJwtToken();
         //return res.status(200).json({success:true,token});

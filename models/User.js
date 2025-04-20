@@ -33,6 +33,12 @@ const UserSchema=new mongoose.Schema({
         minlength:6,
         select:false
     },
+    twoFactorEnabled: {
+        type: Boolean,
+        default: true
+    },
+    twoFactorTempSecret: String,
+    twoFactorOTPExpires: Date,
     resetPasswordToken: String,
     resetPasswordExpire: Date,
     createdAt:{
@@ -41,10 +47,10 @@ const UserSchema=new mongoose.Schema({
     }
 });
 
-UserSchema.pre('save',async function(next){
-    const salt=await bcrypt.genSalt(10);
-    this.password=await bcrypt.hash(this.password,salt);
-});
+//UserSchema.pre('save',async function(next){
+    //const salt=await bcrypt.genSalt(10);
+    //this.password=await bcrypt.hash(this.password,salt);
+//});
 
 //Sign JWT and return
 UserSchema.methods.getSignedJwtToken = function () {
