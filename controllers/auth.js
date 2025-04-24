@@ -11,19 +11,20 @@ exports.register = async(req,res,next)=>
 {
     try
     {
-        const {name, telephone, email, password, role} = req.body;
+        const {name, telephone, email, password, role, twoFactorEnabled} = req.body;
         
         //Generate password with salt
-        const salt=await bcrypt.genSalt(10);
-        const newpassword=await bcrypt.hash(password,salt);
+        //const salt=await bcrypt.genSalt(10);
+        //const newpassword=await bcrypt.hash(password,salt);
 
         //Create user
         const user = await User.create({
          name,
          telephone,
          email,
-         password: newpassword,
-         role
+         password,
+         role,
+         twoFactorEnabled
         });
 
         //Create token
@@ -32,11 +33,16 @@ exports.register = async(req,res,next)=>
         //sendTokenResponse(user,200,res);
         res.status(200).json({success:true});
     }
-    catch(err)
-    {
-        res.status(400).json({success:false});
-        console.log(err.stack);
-    }
+    
+    catch(err) {
+        return res.status(400).json({
+          success: false,
+          //msg: err.message
+        });
+        console.error(err.stack);
+      }
+      
+      
 };
 
 //@desc Login user

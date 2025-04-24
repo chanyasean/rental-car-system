@@ -47,10 +47,16 @@ const UserSchema=new mongoose.Schema({
     }
 });
 
-//UserSchema.pre('save',async function(next){
-    //const salt=await bcrypt.genSalt(10);
-    //this.password=await bcrypt.hash(this.password,salt);
-//});
+UserSchema.pre('save', async function(next) {
+    // ถ้า password ไม่ได้ถูกแก้ไข (เช่น save เพื่อเซฟ OTP) ให้ข้ามการ hash
+    if (!this.isModified('password')) {
+      return next();
+    }
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  });
+  
 
 //Sign JWT and return
 UserSchema.methods.getSignedJwtToken = function () {
